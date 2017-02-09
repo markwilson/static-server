@@ -50,6 +50,10 @@ func (f *CommandFlagSet) Validate() error {
         return errors.New("Invalid flags")
     }
 
+    if *f.expose {
+        f.bindAddress.value = "0.0.0.0"
+    }
+
     return nil
 }
 
@@ -85,21 +89,11 @@ func main() {
     f := NewCommandFlagSet()
     f.Parse(os.Args[1:])
 
-    bindAddress := (*f.bindAddress).String()
-    expose      := *f.expose
-    port        := strconv.Itoa(*f.port)
-    directory   := *f.directory
-
-
-    if expose {
-        bindAddress = "0.0.0.0"
-    }
-
-    bindAddress += ":" + port
+    bindAddress := (*f.bindAddress).String() + ":" + strconv.Itoa(*f.port)
 
     log.Printf("Listening on http://%s/\n", bindAddress)
 
-    path := filepath.Dir(directory)
+    path := filepath.Dir(*f.directory)
     http.Handle("/", FileHandler{Handler: http.FileServer(http.Dir(path))})
 
     log.Fatal(http.ListenAndServe(bindAddress, nil))
