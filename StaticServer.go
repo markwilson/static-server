@@ -3,7 +3,6 @@ package main
 import (
     "net/http"
     "log"
-    "path/filepath"
     "github.com/markwilson/static-server/flag"
     server_http "github.com/markwilson/static-server/http"
     "os"
@@ -14,11 +13,10 @@ func main() {
     f.Parse(os.Args[1:])
 
     bindAddress := f.BindAddress()
+    path        := *f.Directory
 
-    log.Printf("Listening on http://%s/\n", bindAddress)
+    log.Printf("Listening on http://%s/ in %s\n", bindAddress, path)
 
-    path := filepath.Dir(*f.Directory)
     http.Handle("/", server_http.NewFileHandler(path))
-
     log.Fatal(http.ListenAndServe(bindAddress, nil))
 }
